@@ -1,6 +1,7 @@
 package com.gamegeeks.api.infrastructure;
 
-import com.gamegeeks.api.v1.model.exception.Problem;
+import com.gamegeeks.api.v1.model.exception.ProblemModel;
+import com.gamegeeks.api.v1.model.exception.ProblemType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.models.tags.Tag;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,31 +41,30 @@ public class SpringDocConfig {
                 .tags(List.of(
                         new Tag().name("Jogos").description("Gerencia jogos")))
                 .components(new Components()
-                        .schemas(generateSchemas())
                         .responses(generateResponses()));
     }
 
     @Bean
     public OpenApiCustomiser openApiCustomiser() {
-        return openApi -> openApi.getPaths()
-                .values()
-                .forEach(pathItem -> pathItem.readOperationsMap()
-                        .forEach((httpMethod, operation) -> {
-                            ApiResponses responses = operation.getResponses();
-                            switch (httpMethod) {
-                                case GET -> {
-                                    responses.addApiResponse("406", new ApiResponse().$ref(NOT_ACCEPTABLE_RESPONSE));
-                                    responses.addApiResponse("500", new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+        return openApi -> {
+            openApi.getComponents().getSchemas().putAll(generateSchemas());
+            openApi.getPaths()
+                    .values()
+                    .forEach(pathItem -> pathItem.readOperationsMap()
+                            .forEach((httpMethod, operation) -> {
+                                ApiResponses responses = operation.getResponses();
+                                switch (httpMethod) {
+                                    case GET, POST, PUT -> {
+                                        responses.addApiResponse(String.valueOf(HttpStatus.BAD_REQUEST.value()), new ApiResponse().$ref(BAD_REQUEST_RESPONSE));
+                                        responses.addApiResponse(String.valueOf(HttpStatus.NOT_FOUND.value()), new ApiResponse().$ref(NOT_FOUND_RESPONSE));
+                                        responses.addApiResponse(String.valueOf(HttpStatus.NOT_ACCEPTABLE.value()), new ApiResponse().$ref(NOT_ACCEPTABLE_RESPONSE));
+                                        responses.addApiResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+                                    }
+                                    default -> responses.addApiResponse("500", new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
                                 }
-                                case POST, PUT -> {
-                                    responses.addApiResponse("400", new ApiResponse().$ref(BAD_REQUEST_RESPONSE));
-                                    responses.addApiResponse("500", new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
-                                }
-                                default ->
-                                        responses.addApiResponse("500", new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
-                            }
-                        })
-                );
+                            })
+                    );
+        };
     }
 
     private Map<String, ApiResponse> generateResponses() {
@@ -71,22 +72,22 @@ public class SpringDocConfig {
 
         Content content = new Content()
                 .addMediaType(APPLICATION_JSON_VALUE,
-                        new MediaType().schema(new Schema<Problem>().$ref("Problem")));
+                        new MediaType().schema(new Schema<ProblemModel>().$ref(ProblemModel.class.getSimpleName())));
 
         responses.put(BAD_REQUEST_RESPONSE, new ApiResponse()
-                .description("Requisição inválida")
+                .description(ProblemType.INVALID_DATA.getTitle())
                 .content(content));
 
         responses.put(NOT_FOUND_RESPONSE, new ApiResponse()
-                .description("Recurso não encontrado")
+                .description(ProblemType.RESOURCE_NOT_FOUND.getTitle())
                 .content(content));
 
         responses.put(NOT_ACCEPTABLE_RESPONSE, new ApiResponse()
-                .description("Recurso não possui representação que poderia ser aceita pelo consumidor")
+                .description(ProblemType.NOT_ACCEPTABLE_RESPONSE.getTitle())
                 .content(content));
 
         responses.put(INTERNAL_SERVER_ERROR_RESPONSE, new ApiResponse()
-                .description("Erro interno no servidor")
+                .description(ProblemType.SYSTEM_ERROR.getTitle())
                 .content(content));
 
         return responses;
@@ -95,8 +96,8 @@ public class SpringDocConfig {
     private Map<String, Schema> generateSchemas() {
         final var schemas = new HashMap<String, Schema>();
 
-        Map<String, Schema> problemSchema = ModelConverters.getInstance().read(Problem.class);
-        Map<String, Schema> problemObjectSchema = ModelConverters.getInstance().read(Problem.Object.class);
+        Map<String, Schema> problemSchema = ModelConverters.getInstance().read(ProblemModel.class);
+        Map<String, Schema> problemObjectSchema = ModelConverters.getInstance().read(ProblemModel.Field.class);
 
         schemas.putAll(problemSchema);
         schemas.putAll(problemObjectSchema);

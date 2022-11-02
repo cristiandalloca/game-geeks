@@ -1,12 +1,11 @@
 package com.gamegeeks.domain.model;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-@Builder
+@Setter
 @Getter
 public class Developer extends AbstractDocument {
 

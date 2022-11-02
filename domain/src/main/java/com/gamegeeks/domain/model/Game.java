@@ -23,10 +23,6 @@ public class Game extends AbstractDocument {
 
     @DBRef
     @Builder.Default
-    private Set<Theme> themes = new HashSet<>();
-
-    @DBRef
-    @Builder.Default
     private Set<Genre> genres = new HashSet<>();
 
     @DBRef
