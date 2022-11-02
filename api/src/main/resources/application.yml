@@ -1,0 +1,24 @@
+management:
+  endpoints:
+    enabled-by-default: false
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://${MONGO_DB_USERNAME:gamegeeks}:${MONGO_DB_PASSWORD:hTNfUQbqJW2J37V8}@gamegeekscluster.4pfxjyv.mongodb.net/gamegeeks-db?retryWrites=true&w=majority
+  jackson:
+    deserialization:
+      fail-on-ignored-properties: true
+      fail-on-unknown-properties: true
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v1/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    use-root-path: true
+  cache:
+    disabled: true
+logging:
+  level:
+    root: debug
