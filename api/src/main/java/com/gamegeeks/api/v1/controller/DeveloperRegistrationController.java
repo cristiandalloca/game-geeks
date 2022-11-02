@@ -24,21 +24,28 @@ import java.util.List;
 public class DeveloperRegistrationController {
 
     private final DeveloperRegistrationService developerRegistrationService;
-    private final DeveloperModelAssembler gameModelAssembler;
+    private final DeveloperModelAssembler developerModelAssembler;
     private final DeveloperInputDisassembler developerInputDisassembler;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<DeveloperModel> search() {
-        return gameModelAssembler.toCollectionModel(developerRegistrationService.findAll());
+        return developerModelAssembler.toCollectionModel(developerRegistrationService.findAll());
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<DeveloperModel> insert(@RequestBody @Valid DeveloperInput developerInput) {
+    public ResponseEntity<DeveloperModel> insert(@Valid @RequestBody DeveloperInput developerInput) {
         Developer developer = developerInputDisassembler.toDomainObject(developerInput);
         developer = developerRegistrationService.createOrUpdate(developer);
-        return ResponseEntity.created(CreatedLocationUtil.getURI(developer.getId())).body(gameModelAssembler.toModel(developer));
+        return ResponseEntity.created(CreatedLocationUtil.getURI(developer.getId())).body(developerModelAssembler.toModel(developer));
+    }
+
+    @GetMapping("/{developerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public DeveloperModel searchById(@PathVariable String developerId) {
+        Developer developer = developerRegistrationService.findByIdOrFail(developerId);
+        return developerModelAssembler.toModel(developer);
     }
 
 }

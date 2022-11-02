@@ -1,8 +1,9 @@
-package com.gamegeeks.api.v1.model.exception;
+package com.gamegeeks.api.exception.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.OffsetDateTime;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
+@Builder
 public class ProblemModel {
 
     @Schema(example = "400")
@@ -33,8 +35,9 @@ public class ProblemModel {
     @ArraySchema
     private List<Field> fields;
 
-    @Getter
     @Schema(name = "ProblemModelField")
+    @Getter
+    @Builder
     public static class Field {
 
         @Schema(example = "price")

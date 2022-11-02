@@ -1,5 +1,6 @@
 package com.gamegeeks.domain.service;
 
+import com.gamegeeks.domain.exception.developer.DeveloperDuplicateException;
 import com.gamegeeks.domain.exception.developer.DeveloperNotFoundException;
 import com.gamegeeks.domain.model.Developer;
 import com.gamegeeks.domain.repository.DeveloperRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,11 @@ public class DeveloperRegistrationService implements RegistrationService<Develop
     @Override
     @Transactional
     public Developer createOrUpdate(Developer developer) {
-        // TODO: Verificar se já existe usuário se for create
+        Optional<Developer> existingDeveloperSameName = developerRepository.findByNameIgnoreCase(developer.getName());
+        if (existingDeveloperSameName.isPresent() && (developer.isNew() || !existingDeveloperSameName.get().equals(developer))) {
+            throw new DeveloperDuplicateException(developer.getName());
+        }
+
         return developerRepository.save(developer);
     }
 

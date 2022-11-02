@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Getter
 public abstract class AbstractDocument {
@@ -23,4 +24,16 @@ public abstract class AbstractDocument {
         return this.id == null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractDocument that = (AbstractDocument) o;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

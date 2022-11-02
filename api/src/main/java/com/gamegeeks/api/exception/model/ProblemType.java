@@ -1,4 +1,4 @@
-package com.gamegeeks.api.v1.model.exception;
+package com.gamegeeks.api.exception.model;
 
 import lombok.Getter;
 

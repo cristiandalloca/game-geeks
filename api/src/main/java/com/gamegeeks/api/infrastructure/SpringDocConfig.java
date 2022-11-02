@@ -1,7 +1,7 @@
 package com.gamegeeks.api.infrastructure;
 
-import com.gamegeeks.api.v1.model.exception.ProblemModel;
-import com.gamegeeks.api.v1.model.exception.ProblemType;
+import com.gamegeeks.api.exception.model.ProblemModel;
+import com.gamegeeks.api.exception.model.ProblemType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
