@@ -3,6 +3,10 @@ package com.gamegeeks.api.infrastructure;
 import com.gamegeeks.api.exception.model.ProblemModel;
 import com.gamegeeks.api.exception.model.ProblemType;
 import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -24,12 +28,19 @@ import java.util.Map;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Configuration
+@SecurityScheme(name = "security_auth",
+        type = SecuritySchemeType.OAUTH2,
+        flows = @OAuthFlows(password = @OAuthFlow(
+                authorizationUrl = "${springdoc.oAuthFlow.authorization-url}",
+                tokenUrl = "${springdoc.oAuthFlow.token-url}"
+        )))
 public class SpringDocConfig {
 
     private static final String BAD_REQUEST_RESPONSE = "BadRequestResponse";
     private static final String NOT_FOUND_RESPONSE = "NotFoundResponse";
     private static final String NOT_ACCEPTABLE_RESPONSE = "NotAcceptableResponse";
     private static final String INTERNAL_SERVER_ERROR_RESPONSE = "InternalServerErrorResponse";
+    private static final String UNAUTHORIZED_RESPONSE = "UnauthorizedResponse";
 
     @Bean
     public OpenAPI openAPI() {
@@ -47,6 +58,7 @@ public class SpringDocConfig {
     @Bean
     public OpenApiCustomiser openApiCustomiser() {
         return openApi -> {
+
             openApi.getComponents().getSchemas().putAll(generateSchemas());
             openApi.getPaths()
                     .values()
@@ -59,8 +71,9 @@ public class SpringDocConfig {
                                         responses.addApiResponse(String.valueOf(HttpStatus.NOT_FOUND.value()), new ApiResponse().$ref(NOT_FOUND_RESPONSE));
                                         responses.addApiResponse(String.valueOf(HttpStatus.NOT_ACCEPTABLE.value()), new ApiResponse().$ref(NOT_ACCEPTABLE_RESPONSE));
                                         responses.addApiResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+                                        responses.addApiResponse(String.valueOf(HttpStatus.UNAUTHORIZED.value()), new ApiResponse().$ref(UNAUTHORIZED_RESPONSE));
                                     }
-                                    default -> responses.addApiResponse("500", new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+                                    default -> responses.addApiResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
                                 }
                             })
                     );
@@ -89,6 +102,9 @@ public class SpringDocConfig {
         responses.put(INTERNAL_SERVER_ERROR_RESPONSE, new ApiResponse()
                 .description(ProblemType.SYSTEM_ERROR.getTitle())
                 .content(content));
+
+        responses.put(UNAUTHORIZED_RESPONSE, new ApiResponse()
+                .description("Unauthorized"));
 
         return responses;
     }

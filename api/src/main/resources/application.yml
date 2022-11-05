@@ -10,6 +10,12 @@ spring:
     deserialization:
       fail-on-ignored-properties: true
       fail-on-unknown-properties: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_JWT_ISSUER_URI:http://localhost:8080/realms/game-geeks}
+          jwk-set-uri: ${OAUTH2_JWT_SET_URI:http://localhost:8080/realms/game-geeks/protocol/openid-connect/certs}
 springdoc:
   api-docs:
     enabled: true
@@ -20,6 +26,9 @@ springdoc:
     use-root-path: true
   cache:
     disabled: true
+  oAuthFlow:
+    authorization-url: http://localhost:8080/realms/game-geeks
+    token-url: http://localhost:8080/realms/game-geeks/protocol/openid-connect/token
 logging:
   level:
     root: debug

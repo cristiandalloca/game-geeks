@@ -7,6 +7,7 @@ import com.gamegeeks.api.v1.model.DeveloperModel;
 import com.gamegeeks.api.v1.model.input.DeveloperInput;
 import com.gamegeeks.domain.model.Developer;
 import com.gamegeeks.domain.service.DeveloperRegistrationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Tag(name = "Desenvolvedores")
+@SecurityRequirement(name = "security_auth")
 @RestController
 @RequestMapping(value = "/v1/developers", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
