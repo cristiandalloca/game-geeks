@@ -4,7 +4,7 @@ management:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://${MONGO_DB_USERNAME:gamegeeks}:${MONGO_DB_PASSWORD:hTNfUQbqJW2J37V8}@gamegeekscluster.4pfxjyv.mongodb.net/gamegeeks-db?retryWrites=true&w=majority
+      uri: mongodb+srv://${MONGO_DB_USERNAME:}:${MONGO_DB_PASSWORD:}@gamegeekscluster.4pfxjyv.mongodb.net/gamegeeks-db?retryWrites=true&w=majority
       auto-index-creation: true
   jackson:
     deserialization:
