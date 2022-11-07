@@ -11,7 +11,7 @@ Com acesso a plataforma, o usuário pode:
 
 ## Documentação
 
-[Documentação](http://localhost:8080/swagger-ui.html)
+[Documentação](https://gamer-geeks-api.herokuapp.com/swagger-ui/index.html)
 
 
 ## Stack utilizada
