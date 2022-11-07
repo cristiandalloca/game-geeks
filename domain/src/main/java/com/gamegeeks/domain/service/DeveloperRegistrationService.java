@@ -1,6 +1,7 @@
 package com.gamegeeks.domain.service;
 
 import com.gamegeeks.domain.exception.developer.DeveloperDuplicateException;
+import com.gamegeeks.domain.exception.developer.DeveloperInUseException;
 import com.gamegeeks.domain.exception.developer.DeveloperNotFoundException;
 import com.gamegeeks.domain.model.Developer;
 import com.gamegeeks.domain.repository.DeveloperRepository;
@@ -43,7 +44,12 @@ public class DeveloperRegistrationService implements RegistrationService<Develop
     @Override
     @Transactional
     public void deleteById(String id) {
-        developerRepository.deleteById(id);
+        Developer developer = this.findByIdOrFail(id);
+        try {
+            developerRepository.delete(developer);
+        } catch (Exception e) {
+            throw new DeveloperInUseException(developer.getName());
+        }
     }
 
     @Override

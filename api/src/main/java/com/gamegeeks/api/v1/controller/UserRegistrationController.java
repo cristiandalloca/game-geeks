@@ -14,15 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "Usuários")
+
 @RestController
 @RequestMapping(value = "/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
-public class UserRegistrationController {
+public class UserRegistrationController implements com.gamegeeks.api.v1.openapi.UserRegistrationControllerOpenApi {
 
     private final UserRegistrationService userRegistrationService;
     private final UserModelAssembler userModelAssembler;
 
+    @Override
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<UserModel> search() {

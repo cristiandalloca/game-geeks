@@ -35,7 +35,7 @@ public class ProblemModel {
     @ArraySchema
     private List<Field> fields;
 
-    @Schema(name = "ProblemModelField")
+    @Schema(name = "ProblemModelField", nullable = true)
     @Getter
     @Builder
     public static class Field {

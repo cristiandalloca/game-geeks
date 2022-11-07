@@ -67,25 +67,34 @@ public class SpringDocConfig {
                                 ApiResponses responses = operation.getResponses();
                                 switch (httpMethod) {
                                     case GET, POST, PUT -> {
-                                        responses.addApiResponse(String.valueOf(HttpStatus.BAD_REQUEST.value()), new ApiResponse().$ref(BAD_REQUEST_RESPONSE));
-                                        responses.addApiResponse(String.valueOf(HttpStatus.NOT_FOUND.value()), new ApiResponse().$ref(NOT_FOUND_RESPONSE));
-                                        responses.addApiResponse(String.valueOf(HttpStatus.NOT_ACCEPTABLE.value()), new ApiResponse().$ref(NOT_ACCEPTABLE_RESPONSE));
-                                        responses.addApiResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
-                                        responses.addApiResponse(String.valueOf(HttpStatus.UNAUTHORIZED.value()), new ApiResponse().$ref(UNAUTHORIZED_RESPONSE));
+                                        this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.BAD_REQUEST.value()), new ApiResponse().$ref(BAD_REQUEST_RESPONSE));
+                                        this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.NOT_FOUND.value()), new ApiResponse().$ref(NOT_FOUND_RESPONSE));
+                                        this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.NOT_ACCEPTABLE.value()), new ApiResponse().$ref(NOT_ACCEPTABLE_RESPONSE));
+                                        this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+                                        this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.UNAUTHORIZED.value()), new ApiResponse().$ref(UNAUTHORIZED_RESPONSE));
                                     }
-                                    default -> responses.addApiResponse(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
+                                    default -> this.addApiResponseConsideringResponseExisting(responses, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), new ApiResponse().$ref(INTERNAL_SERVER_ERROR_RESPONSE));
                                 }
                             })
                     );
         };
     }
 
+    private void addApiResponseConsideringResponseExisting(ApiResponses responses, String name, ApiResponse apiResponse) {
+        if (responses.containsKey(name)) {
+            ApiResponse response = responses.get(name);
+            if (!String.valueOf(HttpStatus.OK.value()).equals(name)) {
+                response.setContent(this.getContentProblemModelDefault());
+            }
+            responses.put(name, response);
+        } else
+            responses.put(name, apiResponse);
+    }
+
     private Map<String, ApiResponse> generateResponses() {
         final var responses = new HashMap<String, ApiResponse>();
 
-        Content content = new Content()
-                .addMediaType(APPLICATION_JSON_VALUE,
-                        new MediaType().schema(new Schema<ProblemModel>().$ref(ProblemModel.class.getSimpleName())));
+        Content content = this.getContentProblemModelDefault();
 
         responses.put(BAD_REQUEST_RESPONSE, new ApiResponse()
                 .description(ProblemType.INVALID_DATA.getTitle())
@@ -107,6 +116,12 @@ public class SpringDocConfig {
                 .description("Unauthorized"));
 
         return responses;
+    }
+
+    private Content getContentProblemModelDefault() {
+        return new Content()
+                .addMediaType(APPLICATION_JSON_VALUE,
+                        new MediaType().schema(new Schema<ProblemModel>().$ref(ProblemModel.class.getSimpleName())));
     }
 
     private Map<String, Schema> generateSchemas() {
