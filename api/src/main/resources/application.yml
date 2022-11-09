@@ -27,8 +27,8 @@ springdoc:
   cache:
     disabled: true
   oAuthFlow:
-    authorization-url: http://localhost:8080/realms/game-geeks
-    token-url: http://localhost:8080/realms/game-geeks/protocol/openid-connect/token
+    authorization-url: ${OAUTH2_JWT_ISSUER_URI}
+    token-url: ${OAUTH2_JWT_TOKEN:http://localhost:8080/realms/game-geeks/protocol/openid-connect/token}
 logging:
   level:
     root: debug

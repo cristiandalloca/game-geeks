@@ -15,14 +15,14 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.tags.Tag;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -30,17 +30,25 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Configuration
 @SecurityScheme(name = "security_auth",
         type = SecuritySchemeType.OAUTH2,
-        flows = @OAuthFlows(password = @OAuthFlow(
+        flows = @OAuthFlows(clientCredentials = @OAuthFlow(
                 authorizationUrl = "${springdoc.oAuthFlow.authorization-url}",
                 tokenUrl = "${springdoc.oAuthFlow.token-url}"
         )))
-public class SpringDocConfig {
+public class SpringDocConfig implements WebMvcConfigurer {
 
     private static final String BAD_REQUEST_RESPONSE = "BadRequestResponse";
     private static final String NOT_FOUND_RESPONSE = "NotFoundResponse";
     private static final String NOT_ACCEPTABLE_RESPONSE = "NotAcceptableResponse";
     private static final String INTERNAL_SERVER_ERROR_RESPONSE = "InternalServerErrorResponse";
     private static final String UNAUTHORIZED_RESPONSE = "UnauthorizedResponse";
+    private static final String SWAGGER_UI_HTML = "/swagger-ui.html";
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addRedirectViewController("/", SWAGGER_UI_HTML);
+        registry.addRedirectViewController("/swagger", SWAGGER_UI_HTML);
+        registry.addRedirectViewController("/swagger-ui", SWAGGER_UI_HTML);
+    }
 
     @Bean
     public OpenAPI openAPI() {
@@ -49,8 +57,6 @@ public class SpringDocConfig {
                         .title("Game Geeks API")
                         .version("v1")
                         .description("REST API do Game Geeks"))
-                .tags(List.of(
-                        new Tag().name("Jogos").description("Gerencia jogos")))
                 .components(new Components()
                         .responses(generateResponses()));
     }
